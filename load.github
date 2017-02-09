@@ -1,0 +1,21 @@
+# -------------------------------------------------------------------------- #
+# load.github
+# -------------------------------------------------------------------------- #
+
+# R function designed to source all the files in a github repository.
+# Ex:
+# load.github("gnicoulaud/twitR")
+
+load.github = function(x) {
+	if(! "httr" %in% .packages()) library(httr, quietly = TRUE)
+	u <- paste("https://api.github.com/repos", x,
+		"git/trees/master?recursive=1", sep = "/")
+	req <- GET(u) 
+	tmp <- unname(unlist(sapply(content(req)$tree, "[", "path")))
+	ls <- tmp[tmp != "README.md"]
+	u <- "https://raw.githubusercontent.com/gnicoulaud/twitR/master/"
+	for(i in ls) {
+		source(paste(u, i, sep = ""))
+	}
+	return(ls)
+}
